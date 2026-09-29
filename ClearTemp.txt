@@ -1,0 +1,9 @@
+%LocalAppData%\CrashDumps|*|EMPTY
+%LocalAppData%\Microsoft\Windows\Explorer|*|EMPTY
+%LocalAppData%\Microsoft\Windows\INetCache|*|EMPTY
+%LocalAppData%\Temp|*|EMPTY
+%ProgramData%\temp|*|EMPTY
+%TEMP%|*|EMPTY
+%TMP%|*|EMPTY
+%windir%\SoftwareDistribution\Download|*|EMPTY
+%windir%\Temp|*|EMPTY
