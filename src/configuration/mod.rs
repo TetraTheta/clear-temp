@@ -52,11 +52,10 @@ pub(crate) struct ParsedConfig {
   pub(crate) rules: Vec<Rule>,
 }
 
-pub(crate) fn select_config_file(arguments: impl IntoIterator<Item = OsString>) -> Result<PathBuf, String> {
-  let mut arguments = arguments.into_iter();
-  match (arguments.next(), arguments.next()) {
-    (Some(path), None) if !path.is_empty() => Ok(PathBuf::from(path)),
-    (None, None) => {
+pub(crate) fn select_config_file(config_file: Option<OsString>) -> Result<PathBuf, String> {
+  match config_file {
+    Some(path) if !path.is_empty() => Ok(PathBuf::from(path)),
+    None => {
       let current_directory = env::current_dir().map_err(|error| format!("Cannot determine the current directory: {error}"))?;
       let executable_directory = env::current_exe()
         .ok()
@@ -64,7 +63,7 @@ pub(crate) fn select_config_file(arguments: impl IntoIterator<Item = OsString>) 
         .ok_or_else(|| "Cannot determine the executable directory.".to_owned())?;
       find_config_file(&current_directory, &executable_directory)
     },
-    _ => Err("Usage: ClearTemp.exe [configuration-file]".to_owned()),
+    Some(_) => Err("Configuration file path must not be empty.".to_owned()),
   }
 }
 

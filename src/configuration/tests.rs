@@ -58,12 +58,12 @@ fn loads_utf8_bom_and_expands_both_program_files_locations() {
 }
 
 #[test]
-fn accepts_one_explicit_config_path_and_rejects_extra_arguments() {
-  let selected = select_config_file([OsString::from("custom rules.txt")]).unwrap();
+fn accepts_an_explicit_config_path_and_rejects_an_empty_path() {
+  let selected = select_config_file(Some(OsString::from("custom rules.txt"))).unwrap();
   assert_eq!(selected, PathBuf::from("custom rules.txt"));
 
-  let error = select_config_file([OsString::from("first.txt"), OsString::from("second.txt")]).unwrap_err();
-  assert_eq!(error, "Usage: ClearTemp.exe [configuration-file]");
+  let error = select_config_file(Some(OsString::new())).unwrap_err();
+  assert_eq!(error, "Configuration file path must not be empty.");
 }
 
 fn temporary_directory(label: &str) -> PathBuf {

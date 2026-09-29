@@ -3,7 +3,7 @@
 ClearTemp is a small Windows command-line program that permanently removes files described by an editable `ClearTemp.txt` configuration file. Its rule values follow the Winapp2 `FileKey` path, pattern, and recursion model without accepting a complete `winapp2.ini` file.
 
 > [!WARNING]
-> ClearTemp deletes files directly. It does not use the Recycle Bin and it requests administrator privileges when started. Review every rule before running it.
+> ClearTemp deletes files directly. It does not use the Recycle Bin and requests administrator privileges by default. Review every rule before running it.
 
 ## Requirements and build
 
@@ -17,10 +17,24 @@ cargo build --release
 
 The executable and a copy of the default configuration are written to `target\release\ClearTemp.exe` and `target\release\ClearTemp.txt`.
 
-Run ClearTemp with zero or one argument:
+Run ClearTemp with optional launch options and zero or one configuration file:
 
 ```text
-ClearTemp.exe [configuration-file]
+ClearTemp.exe [--no-elevate] [--no-wait] [configuration-file]
+```
+
+| Launch option | Behavior |
+|---|---|
+| `--no-elevate` | Does not request administrator privileges. If ClearTemp was started by an already elevated process, it remains elevated. |
+| `--no-wait` | Does not print `Press any non-modifier key to continue...` or wait for keyboard input before exiting. |
+
+By default, ClearTemp requests administrator privileges through Windows User Account Control (UAC). This allows rules to clean protected locations. Use `--no-elevate` when a script should run ClearTemp with its current permissions and report inaccessible files normally.
+
+For scripts that must continue without keyboard interaction, use `--no-wait`:
+
+```bat
+ClearTemp.exe --no-wait
+ClearTemp.exe --no-elevate --no-wait ".\configs\User Cleanup.txt"
 ```
 
 When a configuration file argument is provided, ClearTemp reads that file instead of searching for `ClearTemp.txt`. Relative paths are resolved from the current working directory. Quote paths containing spaces:
@@ -29,7 +43,7 @@ When a configuration file argument is provided, ClearTemp reads that file instea
 .\ClearTemp.exe ".\configs\Browser Cleanup.txt"
 ```
 
-Only one argument is accepted. Additional arguments produce a usage error without starting any cleaning operation.
+Only one configuration file is accepted. Unknown options or additional file arguments produce a usage error without starting any cleaning operation. Use `--` before a configuration file whose name begins with `-`.
 
 Without an argument, ClearTemp searches for the configuration in this order:
 
