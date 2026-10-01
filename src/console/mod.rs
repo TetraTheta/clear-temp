@@ -3,12 +3,20 @@ use std::path::Path;
 
 use windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE;
 use windows_sys::Win32::System::Console::{
-  CONSOLE_SCREEN_BUFFER_INFO, FOREGROUND_GREEN, FOREGROUND_INTENSITY, FOREGROUND_RED, GetConsoleScreenBufferInfo, GetStdHandle, INPUT_RECORD,
-  KEY_EVENT, LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, ReadConsoleInputW, SHIFT_PRESSED, STD_INPUT_HANDLE,
-  STD_OUTPUT_HANDLE, SetConsoleTextAttribute,
+  ATTACH_PARENT_PROCESS, AllocConsole, AttachConsole, CONSOLE_SCREEN_BUFFER_INFO, FOREGROUND_GREEN, FOREGROUND_INTENSITY, FOREGROUND_RED,
+  GetConsoleScreenBufferInfo, GetConsoleWindow, GetStdHandle, INPUT_RECORD, KEY_EVENT, LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED,
+  RIGHT_CTRL_PRESSED, ReadConsoleInputW, SHIFT_PRESSED, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, SetConsoleTextAttribute,
 };
 
 const MODIFIER_KEYS: u32 = LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED | LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED | SHIFT_PRESSED;
+
+pub(crate) fn ensure_console() {
+  if unsafe { GetConsoleWindow() }.is_null() && unsafe { AttachConsole(ATTACH_PARENT_PROCESS) } == 0 {
+    unsafe {
+      AllocConsole();
+    }
+  }
+}
 
 #[derive(Clone, Copy)]
 enum ResultKind {

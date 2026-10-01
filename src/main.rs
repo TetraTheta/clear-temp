@@ -1,4 +1,5 @@
 #![cfg_attr(not(windows), allow(dead_code, unused_imports))]
+#![cfg_attr(all(windows, not(test)), windows_subsystem = "windows")]
 
 #[cfg(not(windows))]
 compile_error!("ClearTemp supports Windows only.");
@@ -14,7 +15,7 @@ use std::path::Path;
 use std::process::ExitCode;
 
 use configuration::{PatternSet, RemoveOption, expand_path, load_config, path_key, select_config_file};
-use console::{print_error_message, print_info, print_warning, wait_for_key};
+use console::{ensure_console, print_error_message, print_info, print_warning, wait_for_key};
 use elevation::{is_elevated, run_elevated};
 use io::{expand_directories, process};
 
@@ -34,6 +35,7 @@ fn main() -> ExitCode {
   let arguments = match parse_arguments(raw_arguments.iter().cloned()) {
     Ok(arguments) => arguments,
     Err(error) => {
+      ensure_console();
       print_error_message(&error);
       if !no_wait {
         wait_for_key();
@@ -46,6 +48,7 @@ fn main() -> ExitCode {
     return match run_elevated(&raw_arguments) {
       Ok(result) => result,
       Err(error) => {
+        ensure_console();
         print_error_message(&format!("Cannot request administrator privileges: {error}"));
         if !arguments.no_wait {
           wait_for_key();
@@ -55,6 +58,7 @@ fn main() -> ExitCode {
     };
   }
 
+  ensure_console();
   let result = run(arguments.config_file);
   if !arguments.no_wait {
     wait_for_key();
